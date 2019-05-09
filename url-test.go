@@ -1,3 +1,5 @@
+//This app is used for basic tests against an HTTP endpoint.
+
 package main
 
 import (
@@ -59,6 +61,7 @@ func main() {
 	requestOpt := requests
 	outputOpt := output
 
+	//channel
 	ch := make(chan string)
 
 	//Send the requests
