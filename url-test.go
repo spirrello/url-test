@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -17,8 +18,7 @@ import (
 func httpTest(url *string, ch chan<- string, iteration int, httpBody *string, insecure *string) {
 
 	//if insecure flag is true skip ssl verification
-	insecureStr := *insecure
-	if strings.Compare(insecureStr, "true") == 0 {
+	if strings.Compare(*insecure, "true") == 0 {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
@@ -46,19 +46,20 @@ func httpTest(url *string, ch chan<- string, iteration int, httpBody *string, in
 
 }
 
-//THIS NEEDS WORK.  THE FOLLOWING IS FAILING.
 //inputValidation checks values added.
-// func inputValidation(url *string, request int, httpBody string) {
+func inputValidation(url *string, request int, httpBody string) {
 
-// 	urlStr := *url
+	//check if url is properly formatted.
+	if strings.Contains(*url, "https://") {
 
-// 	switch urlStr {
-// 	case strings.Contains(urlStr, "https://"):
-// 	case strings.Contains(urlStr, "http://"):
-// 	default:
-// 	}
+	} else if strings.Contains(*url, "http://") {
 
-// }
+	} else {
+		log.Println("Incorrect URL format, please use http:// or https://")
+		os.Exit(1)
+	}
+
+}
 
 func main() {
 
@@ -69,6 +70,8 @@ func main() {
 	insecure := flag.String("insecure", "true", "flag for when to ignore SSL errors")
 
 	flag.Parse()
+
+	inputValidation(url, *requests, *httpBody)
 
 	fmt.Println("Testing with:", *url)
 
