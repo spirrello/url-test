@@ -82,6 +82,7 @@ func main() {
 	for iteration := 0; iteration < *requests; iteration++ {
 		go httpTest(url, ch, iteration, httpBody, insecure)
 	}
+
 	// Loop through the results
 	for i := 0; i < *requests; i++ {
 		log.Println(<-ch)
