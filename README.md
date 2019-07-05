@@ -3,11 +3,15 @@
 ## Usage
 
 Flags:
+```
 --url for target http endpoint
---request-count number of simultaneous requests to submit
---request-type GET, HTTP, etc.
---httpBody true or false to print out http body
 
+--request-count number of simultaneous requests to submit
+
+--request-type GET, HTTP, etc.
+
+--httpBody true or false to print out http body
+```
 
 ```
 go run url-test.go --request-count 5 --request-type GET --url https://yahoo.com
