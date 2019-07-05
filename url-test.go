@@ -121,6 +121,7 @@ func inputValidation(url *string, request int, httpBody string, requestType stri
 		os.Exit(1)
 	}
 
+	//If the requset type is incorrect then exit.
 	switch requestType {
 	case "GET":
 	case "POST":
@@ -150,7 +151,7 @@ func main() {
 	//channel
 	ch := make(chan string)
 
-	//Send the requestCount
+	//Send the requests
 	for iteration := 0; iteration < *requestCount; iteration++ {
 		if strings.Compare(*requestType, "GET") == 0 {
 			go httpGetRequest(*url, ch, iteration, *httpBody, insecure)
