@@ -49,6 +49,13 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 		print(err.Error())
 	} else {
 		defer resp.Body.Close()
+
+		//print headers
+		// for k, v := range resp.Header {
+		// 	fmt.Print(k)
+		// 	fmt.Print(" : ")
+		// 	fmt.Println(v)
+		// }
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 
@@ -80,6 +87,13 @@ func httpPostRequest(url string, ch chan<- string, iteration int, httpBody strin
 		print(err.Error())
 	} else {
 		defer resp.Body.Close()
+
+		//print headers
+		// for k, v := range resp.Header {
+		// 	fmt.Print(k)
+		// 	fmt.Print(" : ")
+		// 	fmt.Println(v)
+		// }
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 

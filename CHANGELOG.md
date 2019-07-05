@@ -1,11 +1,13 @@
-## [0.1.0] - 7-3-2019
+## [0.1.0] - 7-5-2019
 ### Added
 
-- Using defined struct to parse api_json.log file
-- Added flag for print specific fields
+- flag for using GET or POST
+- dedicated function for sending POSTS
+- changelog
+
 
 #### Changed
-
-- Renamed getJSONFileData function to getApiJSONFileData
+- renamed httprequest funcdtion
+- Renamed requests variable to requestCount
 - Updated README
-- Renamed getApiJSONFileData to getAPIJSONFileData
+
