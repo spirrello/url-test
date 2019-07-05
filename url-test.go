@@ -14,17 +14,34 @@ import (
 	"time"
 )
 
-//httpTest sends get requests to an endpoint.
-func httpTest(url *string, ch chan<- string, iteration int, httpBody *string, insecure *string) {
+//httpRequest processes the actual request
+// func httpRequest(url string, requestType string) (resp , err string) {
+
+// 	switch requestType {
+// 	case "GET":
+// 		resp, err := http.Get(url)
+// 	default:
+// 		resp, err := http.Get(url)
+// 	}
+
+// 	return resp, err
+
+// }
+
+//httpTest sends get requestCount to an endpoint.
+func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string, insecure *string) {
 
 	//if insecure flag is true skip ssl verification
 	if strings.Compare(*insecure, "true") == 0 {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
+	// req = htp.New()
+	// var resp gorequest.Response
+
 	//Clock the start and finish of each request
 	start := time.Now()
-	resp, err := http.Get(*url)
+	resp, err := http.Get(url)
 
 	secs := time.Since(start).Seconds()
 
@@ -35,7 +52,38 @@ func httpTest(url *string, ch chan<- string, iteration int, httpBody *string, in
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 
-		httpBodyStr := *httpBody
+		httpBodyStr := httpBody
+		if strings.Compare(httpBodyStr, "true") == 0 {
+			ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s, http output: %s", iteration, secs, resp.Status, bodyString)
+		} else {
+			ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s", iteration, secs, resp.Status)
+		}
+
+	}
+
+}
+
+func httpPostRequest(url string, ch chan<- string, iteration int, httpBody string, insecure *string) {
+
+	//if insecure flag is true skip ssl verification
+	if strings.Compare(*insecure, "true") == 0 {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	//Clock the start and finish of each request
+	start := time.Now()
+	resp, err := http.Post(url, "application/json", nil)
+
+	secs := time.Since(start).Seconds()
+
+	if err != nil {
+		print(err.Error())
+	} else {
+		defer resp.Body.Close()
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyString := string(bodyBytes)
+
+		httpBodyStr := httpBody
 		if strings.Compare(httpBodyStr, "true") == 0 {
 			ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s, http output: %s", iteration, secs, resp.Status, bodyString)
 		} else {
@@ -47,7 +95,7 @@ func httpTest(url *string, ch chan<- string, iteration int, httpBody *string, in
 }
 
 //inputValidation checks values added.
-func inputValidation(url *string, request int, httpBody string) {
+func inputValidation(url *string, request int, httpBody string, requestType string) {
 
 	//check if url is properly formatted.
 	if strings.Contains(*url, "https://") {
@@ -59,32 +107,48 @@ func inputValidation(url *string, request int, httpBody string) {
 		os.Exit(1)
 	}
 
+	switch requestType {
+	case "GET":
+	case "POST":
+	default:
+		log.Println("Incorrect request-type, GET or POST accepted.")
+		os.Exit(1)
+
+	}
+
 }
 
 func main() {
 
-	// URL and number of parallel requests to make.
+	// Input options
 	url := flag.String("url", "https://google.com", "URL and google.com by default")
-	requests := flag.Int("requests", 1, "number of concurrent requests")
+	requestCount := flag.Int("request-count", 1, "number of concurrent requestCount")
 	httpBody := flag.String("output", "false", "flag for printing http body or not")
 	insecure := flag.String("insecure", "true", "flag for when to ignore SSL errors")
+	requestType := flag.String("request-type", "GET", "GET, POST, etc")
 
 	flag.Parse()
 
-	inputValidation(url, *requests, *httpBody)
+	inputValidation(url, *requestCount, *httpBody, *requestType)
 
 	fmt.Println("Testing with:", *url)
 
 	//channel
 	ch := make(chan string)
 
-	//Send the requests
-	for iteration := 0; iteration < *requests; iteration++ {
-		go httpTest(url, ch, iteration, httpBody, insecure)
+	//Send the requestCount
+	for iteration := 0; iteration < *requestCount; iteration++ {
+		if strings.Compare(*requestType, "GET") == 0 {
+			go httpGetRequest(*url, ch, iteration, *httpBody, insecure)
+
+		} else if strings.Compare(*requestType, "POST") == 0 {
+			go httpPostRequest(*url, ch, iteration, *httpBody, insecure)
+		}
+
 	}
 
 	// Loop through the results
-	for i := 0; i < *requests; i++ {
+	for i := 0; i < *requestCount; i++ {
 		log.Println(<-ch)
 	}
 
