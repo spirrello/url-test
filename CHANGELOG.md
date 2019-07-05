@@ -10,4 +10,5 @@
 - renamed httprequest funcdtion
 - Renamed requests variable to requestCount
 - Updated README
+- Updated comments
 
