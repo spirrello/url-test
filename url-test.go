@@ -36,9 +36,6 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
-	// req = htp.New()
-	// var resp gorequest.Response
-
 	//Clock the start and finish of each request
 	start := time.Now()
 	resp, err := http.Get(url)
