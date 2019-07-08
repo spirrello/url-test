@@ -14,20 +14,6 @@ import (
 	"time"
 )
 
-//httpRequest processes the actual request
-// func httpRequest(url string, requestType string) (resp , err string) {
-
-// 	switch requestType {
-// 	case "GET":
-// 		resp, err := http.Get(url)
-// 	default:
-// 		resp, err := http.Get(url)
-// 	}
-
-// 	return resp, err
-
-// }
-
 //httpTest sends get requestCount to an endpoint.
 func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string, insecure *string) {
 
