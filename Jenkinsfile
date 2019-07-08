@@ -9,8 +9,8 @@ timestamps {
         }
 
         stage('Build') {
-            sh './gradlew build -x test'
-            //sh './gradlew build --no-daemon'
+            //sh './gradlew build -x test'
+            sh './gradlew build --no-daemon'
 
             sh 'go version'
         }
