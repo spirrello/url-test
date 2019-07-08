@@ -47,12 +47,6 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 	} else {
 		defer resp.Body.Close()
 
-		//print headers
-		// for k, v := range resp.Header {
-		// 	fmt.Print(k)
-		// 	fmt.Print(" : ")
-		// 	fmt.Println(v)
-		// }
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 
@@ -85,12 +79,6 @@ func httpPostRequest(url string, ch chan<- string, iteration int, httpBody strin
 	} else {
 		defer resp.Body.Close()
 
-		//print headers
-		// for k, v := range resp.Header {
-		// 	fmt.Print(k)
-		// 	fmt.Print(" : ")
-		// 	fmt.Println(v)
-		// }
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
 
@@ -103,6 +91,40 @@ func httpPostRequest(url string, ch chan<- string, iteration int, httpBody strin
 
 	}
 
+}
+
+//httpPostRequest posts a file
+func httpPostFileRequest(url string, filename string, ch chan<- string, iteration int, insecure *string) {
+
+	//if insecure flag is true skip ssl verification
+	if strings.Compare(*insecure, "true") == 0 {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	//Clock the start and finish of each request
+	start := time.Now()
+	secs := time.Since(start).Seconds()
+
+	//Open file
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	resp, err := http.Post(url, "application/json", file)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s", iteration, secs, resp.Status)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 //inputValidation checks values added.
@@ -138,6 +160,7 @@ func main() {
 	httpBody := flag.String("output", "false", "flag for printing http body or not")
 	insecure := flag.String("insecure", "true", "flag for when to ignore SSL errors")
 	requestType := flag.String("request-type", "GET", "GET, POST, etc")
+	postFile := flag.String("post-file", "", "file to post")
 
 	flag.Parse()
 
@@ -153,8 +176,14 @@ func main() {
 		if strings.Compare(*requestType, "GET") == 0 {
 			go httpGetRequest(*url, ch, iteration, *httpBody, insecure)
 
-		} else if strings.Compare(*requestType, "POST") == 0 {
-			go httpPostRequest(*url, ch, iteration, *httpBody, insecure)
+		}
+		if strings.Compare(*requestType, "POST") == 0 {
+			if strings.Compare(*postFile, "") != 0 {
+				go httpPostFileRequest(*url, *postFile, ch, iteration, insecure)
+			} else {
+				go httpPostRequest(*url, ch, iteration, *httpBody, insecure)
+			}
+
 		}
 
 	}
