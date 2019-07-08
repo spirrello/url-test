@@ -17,7 +17,7 @@ timestamps {
             // unit tests
             echo "Testing...."
 
-            sh "go run url-test.go --url google.com --request-count 5"
+            sh "go test -v"
 
         }
     }
