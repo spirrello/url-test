@@ -8,7 +8,7 @@ Flags:
 
 --request-count number of simultaneous requests to submit
 
---request-type GET, HTTP, etc.
+--request-type GET, POST, etc.
 
 --httpBody true or false to print out http body
 ```
