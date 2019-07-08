@@ -9,7 +9,8 @@ timestamps {
         }
 
         stage('Build') {
-            sh './gradlew build -x test'
+            //sh './gradlew build -x test'
+            sh './gradlew build --no-daemon'
         }
 
         stage('Test') {
