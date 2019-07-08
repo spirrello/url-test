@@ -11,6 +11,8 @@ Flags:
 --request-type GET, POST, etc.
 
 --httpBody true or false to print out http body
+
+--post-file file-name
 ```
 
 ```

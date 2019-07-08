@@ -1,3 +1,9 @@
+## [0.2.0] - 7-8-2019
+### Added
+
+- Function for posting files
+
+
 ## [0.1.0] - 7-5-2019
 ### Added
 
