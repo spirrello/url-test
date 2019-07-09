@@ -14,8 +14,11 @@ timestamps {
 
             echo "PWD: $PWD"
 
-            // echo 'Setting go path....'
-            // sh './setgo.sh'
+            echo 'Setting go path....'
+            sh './setgo.sh'
+
+            echo '$GOROOT'
+            echo 'go version'
 
             // //sh './gradlew build -x test'
             // sh './gradlew build --no-daemon'
@@ -43,8 +46,7 @@ timestamps {
         //         sh "go build ..."
 
 
-        //         echo '$GOROOT'
-            //echo 'go version'
+
 
             }
 
