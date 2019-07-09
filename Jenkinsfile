@@ -10,9 +10,9 @@ timestamps {
 
         stage('Build') {
 
-            withEnv(["GOROOT=${root}", "PATH+GO=${root}/bin"]) {
-                sh 'go version'
-        }
+            echo 'Setting go path....'
+            sh './setgo.sh'
+
             //sh './gradlew build -x test'
             sh './gradlew build --no-daemon'
 
