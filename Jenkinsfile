@@ -47,7 +47,6 @@ timestamps {
             //echo 'go version'
 
             }
-        }
 
         stage('Test') {
 
