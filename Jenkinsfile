@@ -10,6 +10,8 @@ timestamps {
 
         stage('Build') {
 
+            echo "ls -ltr"
+
             echo "HOME: $HOME"
 
             echo "PWD: $PWD"
