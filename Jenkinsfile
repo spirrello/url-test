@@ -7,11 +7,13 @@ timestamps {
         // Export environment variables pointing to the directory where Go was installed
         withEnv(["GOROOT=${root}", "PATH+GO=${root}/bin"]) {
             sh 'go version'
-            sh "go test -v"
+            //sh "go test -v"
 
 
         stage('Checkout') {
             checkout scm
+
+            sh "go test -v"
         }
         }
 
