@@ -101,8 +101,10 @@ func httpPostFileRequest(url string, filename string, ch chan<- string, iteratio
 	resp, err := http.Post(url, "application/json", file)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+
+	resp.Close = true
 
 	defer resp.Body.Close()
 
