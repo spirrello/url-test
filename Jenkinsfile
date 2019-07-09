@@ -1,6 +1,5 @@
 #!groovy
 
-#!groovy
 /**
  * This is an example Jenkins pipeline Jenkinsfile for building and testing a private Github Go project that uses glide.sh.
  * This style of Pipeline works with the Jenkins Git plugin and multibranch pipeline projects. In a multi-branch project configuring
