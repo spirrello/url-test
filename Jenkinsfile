@@ -13,6 +13,8 @@ timestamps {
 
                         git url: 'https://github.com/spirrello/url-test.git'
 
+                        sh './gradlew build --no-daemon'
+
                     }
 
                     stage('Test'){
@@ -23,7 +25,7 @@ timestamps {
 
                     stage('Build'){
 
-                         sh './gradlew build --no-daemon'
+                        sh "build ."
                     }
 
 
