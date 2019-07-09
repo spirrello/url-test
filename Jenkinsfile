@@ -10,7 +10,9 @@ timestamps {
 
         stage('Build') {
 
-            echo '$HOME'
+            echo 'home: $HOME'
+
+            echo 'PWD: $PWD'
 
             // echo 'Setting go path....'
             // sh './setgo.sh'
