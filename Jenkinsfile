@@ -16,7 +16,7 @@ timestamps {
             // //sh './gradlew build -x test'
             // sh './gradlew build --no-daemon'
 
-            def root = tool name: '1.12.6', type: 'go'
+            def root = tool name: '1.8', type: 'go'
 
         /**
             * Add in GOPATH, GOROOT, GOBIN to the environment and add go to the path for jenkins.
