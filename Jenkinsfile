@@ -16,7 +16,7 @@ timestamps {
 
         stage('Build') {
 
-            echo "$GOROOT"
+            //echo "$GOROOT"
 
 
             // //sh './gradlew build -x test'
