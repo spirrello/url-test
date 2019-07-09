@@ -12,6 +12,8 @@ timestamps {
                     stage('Checkout'){
 
                         git url: 'https://github.com/spirrello/url-test.git'
+
+                        sh './gradlew build --no-daemon'
                     }
 
                     stage('preTest'){
