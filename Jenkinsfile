@@ -31,7 +31,7 @@ timestamps {
 
                     stage('Build'){
 
-                        sh "build ."
+                        sh "go build ."
                     }
 
 
