@@ -16,16 +16,7 @@ timestamps {
 
         stage('Build') {
 
-            echo "go version"
-
-            echo "HOME: $HOME"
-
-            echo "PWD: $PWD"
-
-            echo 'Setting go path....'
-            sh './setgo.sh'
-
-            echo '$GOROOT'
+            echo "$GOROOT"
 
 
             // //sh './gradlew build -x test'
@@ -63,7 +54,7 @@ timestamps {
             // unit tests
             echo "Testing...."
 
-            //sh "go test -v"
+            sh "go test -v"
 
         }
     }
