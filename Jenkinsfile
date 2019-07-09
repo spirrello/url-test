@@ -18,11 +18,6 @@ timestamps {
 
                     }
 
-                    stage('preTest'){
-                        sh 'go version'
-
-
-                    }
 
                     stage('Test'){
 
@@ -35,12 +30,6 @@ timestamps {
                         sh "go build ."
                     }
 
-
-                    stage('Archive'){
-
-                        archiveArtifacts artifacts: 'url-test.zip'
-
-                    }
                     // Do nothing.
                 }
             }
