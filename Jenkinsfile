@@ -10,7 +10,7 @@ timestamps {
 
         stage('Build') {
 
-            echo "ls -ltr"
+            echo "go version"
 
             echo "HOME: $HOME"
 
@@ -20,7 +20,7 @@ timestamps {
             sh './setgo.sh'
 
             echo '$GOROOT'
-            echo 'go version'
+
 
             // //sh './gradlew build -x test'
             // sh './gradlew build --no-daemon'
