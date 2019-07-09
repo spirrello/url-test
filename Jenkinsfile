@@ -12,7 +12,9 @@ timestamps {
             //sh './gradlew build -x test'
             sh './gradlew build --no-daemon'
 
-            sh 'go version'
+            echo '$GOROOT'
+            echo 'go version'
+
         }
 
         stage('Test') {
