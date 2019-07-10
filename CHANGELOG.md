@@ -1,3 +1,9 @@
+## [0.3.0] - 7-10-2019
+### Added
+
+- Check for race conditions in Jenkins build
+- Check for valid json payload
+
 ## [0.2.0] - 7-8-2019
 ### Added
 

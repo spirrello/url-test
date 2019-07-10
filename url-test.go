@@ -4,6 +4,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -80,7 +81,7 @@ func httpPostRequest(url string, ch chan<- string, iteration int, httpBody strin
 }
 
 //httpPostRequest posts a file
-func httpPostFileRequest(url string, filename string, ch chan<- string, iteration int, insecure *string) {
+func httpPostFileRequest(url string, postFile string, ch chan<- string, iteration int, insecure *string) {
 
 	//if insecure flag is true skip ssl verification
 	if strings.Compare(*insecure, "true") == 0 {
@@ -92,7 +93,7 @@ func httpPostFileRequest(url string, filename string, ch chan<- string, iteratio
 	secs := time.Since(start).Seconds()
 
 	//Open file
-	file, err := os.Open(filename)
+	file, err := os.Open(postFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -115,8 +116,23 @@ func httpPostFileRequest(url string, filename string, ch chan<- string, iteratio
 	}
 }
 
+//isJSON check for valid JSON
+func isJSON(postFile string) bool {
+
+	jsonFile, err := os.Open(postFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var js json.RawMessage
+	return json.Unmarshal(byteValue, &js) == nil
+}
+
 //inputValidation checks values added.
-func inputValidation(url *string, request int, httpBody string, requestType string) {
+func inputValidation(url *string, request int, httpBody string, requestType string, postFile string) {
 
 	//check if url is properly formatted.
 	if strings.Contains(*url, "https://") {
@@ -138,6 +154,18 @@ func inputValidation(url *string, request int, httpBody string, requestType stri
 
 	}
 
+	//Check for valid json
+	if strings.Contains(postFile, ".json") == true {
+		if isJSON(postFile) == false {
+
+			log.Println("json payload incorrectly formatted")
+			os.Exit(1)
+		}
+		// } else if strings.Contains(postFile, "") == false {
+		// 	log.Println("JSON file must end with .json")
+		// 	os.Exit(1)
+	}
+
 }
 
 func main() {
@@ -152,7 +180,7 @@ func main() {
 
 	flag.Parse()
 
-	inputValidation(url, *requestCount, *httpBody, *requestType)
+	inputValidation(url, *requestCount, *httpBody, *requestType, *postFile)
 
 	fmt.Println("Testing with:", *url)
 
