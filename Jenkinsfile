@@ -22,6 +22,8 @@ timestamps {
                     stage('Test'){
 
                         sh 'go test -v'
+
+                        sh 'go run -race url-test.go'
                     }
 
 
