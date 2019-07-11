@@ -178,6 +178,7 @@ func main() {
 	requestType := flag.String("request-type", "GET", "GET, POST, etc")
 	postFile := flag.String("post-file", "", "file to post")
 	iterations := flag.Int("iterations", 1, "number of iterations to run the requests.  50 requests, 1 iteration = 50 total requests")
+	sleepTime := flag.Int("sleep", 0, "Time to sleep between iterations")
 
 	flag.Parse()
 
@@ -211,6 +212,11 @@ func main() {
 		// Loop through the results
 		for i := 0; i < *requestCount; i++ {
 			log.Println(<-ch)
+		}
+		//Sleep for a duration between iterations
+		if *sleepTime > 0 {
+			log.Println("Sleeping....")
+			time.Sleep(time.Duration(*sleepTime) * time.Second)
 		}
 	}
 

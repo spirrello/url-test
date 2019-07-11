@@ -1,3 +1,10 @@
+## [0.4.0] - 7-11-2019
+### Added
+
+- flag for looping x number of times
+- flag for sleeping between loops
+
+
 ## [0.3.0] - 7-10-2019
 ### Added
 
