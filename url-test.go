@@ -177,6 +177,7 @@ func main() {
 	insecure := flag.String("insecure", "true", "flag for when to ignore SSL errors")
 	requestType := flag.String("request-type", "GET", "GET, POST, etc")
 	postFile := flag.String("post-file", "", "file to post")
+	iterations := flag.Int("iterations", 1, "number of iterations to run the requests.  50 requests, 1 iteration = 50 total requests")
 
 	flag.Parse()
 
@@ -188,25 +189,29 @@ func main() {
 	ch := make(chan string)
 
 	//Send the requests
-	for iteration := 0; iteration < *requestCount; iteration++ {
-		if strings.Compare(*requestType, "GET") == 0 {
-			go httpGetRequest(*url, ch, iteration, *httpBody, insecure)
+	//Most outer for loop handles the iterations
+	for iterationCount := 0; iterationCount < *iterations; iterationCount++ {
+		//Loop through the request count
+		for loopCount := 0; loopCount < *requestCount; loopCount++ {
+			if strings.Compare(*requestType, "GET") == 0 {
+				go httpGetRequest(*url, ch, loopCount, *httpBody, insecure)
 
-		}
-		if strings.Compare(*requestType, "POST") == 0 {
-			if strings.Compare(*postFile, "") != 0 {
-				go httpPostFileRequest(*url, *postFile, ch, iteration, insecure)
-			} else {
-				go httpPostRequest(*url, ch, iteration, *httpBody, insecure)
+			}
+			if strings.Compare(*requestType, "POST") == 0 {
+				if strings.Compare(*postFile, "") != 0 {
+					go httpPostFileRequest(*url, *postFile, ch, loopCount, insecure)
+				} else {
+					go httpPostRequest(*url, ch, loopCount, *httpBody, insecure)
+				}
+
 			}
 
 		}
 
-	}
-
-	// Loop through the results
-	for i := 0; i < *requestCount; i++ {
-		log.Println(<-ch)
+		// Loop through the results
+		for i := 0; i < *requestCount; i++ {
+			log.Println(<-ch)
+		}
 	}
 
 }
