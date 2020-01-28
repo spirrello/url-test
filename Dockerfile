@@ -12,7 +12,6 @@ RUN go mod download
 
 COPY . .
 
-#WORKDIR /go/src/kapture/services/kapture-api
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /url-test
 
