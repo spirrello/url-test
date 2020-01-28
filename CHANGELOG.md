@@ -1,3 +1,8 @@
+## [0.5.0] - 1-28-2020
+### Added
+
+- Dockerfile
+
 ## [0.4.0] - 7-11-2019
 ### Added
 
@@ -30,4 +35,3 @@
 - Renamed requests variable to requestCount
 - Updated README
 - Updated comments
-
