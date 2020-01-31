@@ -14,7 +14,7 @@ func TestHttpGetRequest(t *testing.T) {
 
 	//flag for ignoring ssl warnings
 	insecure := "true"
-	go httpGetRequest("https://yahoo.com", ch, 1, "false", &insecure)
+	go httpGetRequest("https://yahoo.com", ch, 1, "false", insecure)
 
 	//for i := 0; i < 1; i++ {
 	result := <-ch

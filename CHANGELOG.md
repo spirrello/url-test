@@ -1,37 +1,26 @@
+## [0.6.1] - 2-4-2020
+
+### Added
+
+- Initial Cloud Build file
+- Gosec scanning
+
+### Removed
+
+- Go mod
+
+## [0.6.0] - 2-3-2020
+
+### Added
+
+- signal.Notify for closing the program
+
+### Removed 
+
+- iterations var for controlling the number of tests
+- Jenkinsfile
+
 ## [0.5.0] - 1-28-2020
 ### Added
 
 - Dockerfile
-
-## [0.4.0] - 7-11-2019
-### Added
-
-- flag for looping x number of times
-- flag for sleeping between loops
-
-
-## [0.3.0] - 7-10-2019
-### Added
-
-- Check for race conditions in Jenkins build
-- Check for valid json payload
-
-## [0.2.0] - 7-8-2019
-### Added
-
-- Function for posting files
-
-
-## [0.1.0] - 7-5-2019
-### Added
-
-- flag for using GET or POST
-- dedicated function for sending POSTS
-- changelog
-
-
-#### Changed
-- renamed httprequest funcdtion
-- Renamed requests variable to requestCount
-- Updated README
-- Updated comments

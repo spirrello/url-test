@@ -11,20 +11,112 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
+var url string
+var requestCount int
+var output string
+var insecure string
+var requestType string
+var postFile string
+var sleepTime int
+
+func init() {
+
+	flag.StringVar(&url, "url", "https://google.com", "URL and google.com by default")
+	flag.IntVar(&requestCount, "request-count", 1, "number of concurrent requestCount")
+	flag.StringVar(&output, "output", "false", "flag for printing http body or not")
+	flag.StringVar(&insecure, "insecure", "true", "flag for when to ignore SSL errors")
+	flag.StringVar(&requestType, "request-type", "GET", "GET, POST, etc")
+	flag.StringVar(&postFile, "post-file", "", "file to post")
+	flag.IntVar(&sleepTime, "sleep", 15, "Time to sleep between iterations")
+}
+
+func main() {
+
+	flag.Parse()
+
+	inputValidation(url, requestCount, output, requestType, postFile)
+
+	fmt.Println("Testing with:", url)
+
+	ch := make(chan string)
+
+	//Wait for SIGTERM
+	setupCloseHandler()
+
+	//Send the requests
+	for {
+		//Loop through the request count
+		for loopCount := 0; loopCount < requestCount; loopCount++ {
+			if strings.Compare(requestType, "GET") == 0 {
+				go httpGetRequest(url, ch, loopCount, output, insecure)
+
+			}
+			if strings.Compare(requestType, "POST") == 0 {
+				if strings.Compare(postFile, "") != 0 {
+					go httpPostFileRequest(url, postFile, ch, loopCount, insecure)
+				} else {
+					go httpPostRequest(url, ch, loopCount, output, insecure)
+				}
+
+			}
+
+		}
+
+		// Loop through the results
+		for i := 0; i < requestCount; i++ {
+			log.Println(<-ch)
+		}
+		//Sleep for a duration between iterations
+		if sleepTime > 0 {
+			log.Println("Sleeping....")
+			time.Sleep(time.Duration(sleepTime) * time.Second)
+		}
+	}
+
+}
+
+//getFilePath fetches the absolute path to a file
+func getFilePath(postFile string) string {
+
+	//get real path to file to mitigate G304 / CWE-22
+	filedirectory := filepath.Dir(postFile)
+	dirPath, err := filepath.Abs(filedirectory)
+	filePath := dirPath + "/" + postFile
+	if err != nil {
+		log.Fatal(err)
+	}
+	return filePath
+}
+
+//setupCloseHandler to close the program gracefully.
+func setupCloseHandler() {
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Println("\rclosing down")
+		os.Exit(0)
+	}()
+}
+
 //httpTest sends get requestCount to an endpoint.
-func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string, insecure *string) {
+func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string, insecure string) {
 
 	//if insecure flag is true skip ssl verification
-	if strings.Compare(*insecure, "true") == 0 {
+	if strings.Compare(insecure, "true") == 0 {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	//Clock the start and finish of each request
 	start := time.Now()
+	/* #nosec G107 */
 	resp, err := http.Get(url)
 
 	secs := time.Since(start).Seconds()
@@ -48,15 +140,16 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 
 }
 
-func httpPostRequest(url string, ch chan<- string, iteration int, httpBody string, insecure *string) {
+func httpPostRequest(url string, ch chan<- string, iteration int, httpBody string, insecure string) {
 
 	//if insecure flag is true skip ssl verification
-	if strings.Compare(*insecure, "true") == 0 {
+	if strings.Compare(insecure, "true") == 0 {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	//Clock the start and finish of each request
 	start := time.Now()
+	/* #nosec G107 */
 	resp, err := http.Post(url, "application/json", nil)
 
 	secs := time.Since(start).Seconds()
@@ -81,10 +174,10 @@ func httpPostRequest(url string, ch chan<- string, iteration int, httpBody strin
 }
 
 //httpPostRequest posts a file
-func httpPostFileRequest(url string, postFile string, ch chan<- string, iteration int, insecure *string) {
+func httpPostFileRequest(url string, postFile string, ch chan<- string, iteration int, insecure string) {
 
 	//if insecure flag is true skip ssl verification
-	if strings.Compare(*insecure, "true") == 0 {
+	if strings.Compare(insecure, "true") == 0 {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
@@ -92,13 +185,16 @@ func httpPostFileRequest(url string, postFile string, ch chan<- string, iteratio
 	start := time.Now()
 	secs := time.Since(start).Seconds()
 
-	//Open file
-	file, err := os.Open(postFile)
+	//get real path to file to avoid G304
+	filePath := getFilePath(postFile)
+	/* #nosec G304 */
+	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
+	/* #nosec G107 */
 	resp, err := http.Post(url, "application/json", file)
 
 	if err != nil {
@@ -119,7 +215,9 @@ func httpPostFileRequest(url string, postFile string, ch chan<- string, iteratio
 //isJSON check for valid JSON
 func isJSON(postFile string) bool {
 
-	jsonFile, err := os.Open(postFile)
+	filePath := getFilePath(postFile)
+	/* #nosec G304 */
+	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -132,12 +230,12 @@ func isJSON(postFile string) bool {
 }
 
 //inputValidation checks values added.
-func inputValidation(url *string, request int, httpBody string, requestType string, postFile string) {
+func inputValidation(url string, request int, httpBody string, requestType string, postFile string) {
 
 	//check if url is properly formatted.
-	if strings.Contains(*url, "https://") {
+	if strings.Contains(url, "https://") {
 
-	} else if strings.Contains(*url, "http://") {
+	} else if strings.Contains(url, "http://") {
 
 	} else {
 		log.Println("Incorrect URL format, please use http:// or https://")
@@ -155,68 +253,11 @@ func inputValidation(url *string, request int, httpBody string, requestType stri
 	}
 
 	//Check for valid json
-	if strings.Contains(postFile, ".json") == true {
-		if isJSON(postFile) == false {
+	if strings.Contains(postFile, ".json") {
+		if isJSON(postFile) {
 
 			log.Println("json payload incorrectly formatted")
 			os.Exit(1)
-		}
-		// } else if strings.Contains(postFile, "") == false {
-		// 	log.Println("JSON file must end with .json")
-		// 	os.Exit(1)
-	}
-
-}
-
-func main() {
-
-	// Input options
-	url := flag.String("url", "https://google.com", "URL and google.com by default")
-	requestCount := flag.Int("request-count", 1, "number of concurrent requestCount")
-	httpBody := flag.String("output", "false", "flag for printing http body or not")
-	insecure := flag.String("insecure", "true", "flag for when to ignore SSL errors")
-	requestType := flag.String("request-type", "GET", "GET, POST, etc")
-	postFile := flag.String("post-file", "", "file to post")
-	iterations := flag.Int("iterations", 1, "number of iterations to run the requests.  50 requests, 1 iteration = 50 total requests")
-	sleepTime := flag.Int("sleep", 0, "Time to sleep between iterations")
-
-	flag.Parse()
-
-	inputValidation(url, *requestCount, *httpBody, *requestType, *postFile)
-
-	fmt.Println("Testing with:", *url)
-
-	//channel
-	ch := make(chan string)
-
-	//Send the requests
-	//Most outer for loop handles the iterations
-	for iterationCount := 0; iterationCount < *iterations; iterationCount++ {
-		//Loop through the request count
-		for loopCount := 0; loopCount < *requestCount; loopCount++ {
-			if strings.Compare(*requestType, "GET") == 0 {
-				go httpGetRequest(*url, ch, loopCount, *httpBody, insecure)
-
-			}
-			if strings.Compare(*requestType, "POST") == 0 {
-				if strings.Compare(*postFile, "") != 0 {
-					go httpPostFileRequest(*url, *postFile, ch, loopCount, insecure)
-				} else {
-					go httpPostRequest(*url, ch, loopCount, *httpBody, insecure)
-				}
-
-			}
-
-		}
-
-		// Loop through the results
-		for i := 0; i < *requestCount; i++ {
-			log.Println(<-ch)
-		}
-		//Sleep for a duration between iterations
-		if *sleepTime > 0 {
-			log.Println("Sleeping....")
-			time.Sleep(time.Duration(*sleepTime) * time.Second)
 		}
 	}
 
