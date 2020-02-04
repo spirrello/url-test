@@ -3,25 +3,25 @@ steps:
   - id: eclint
     name: "e53e225/editorconfig-checker"
   
-  # - id: go_version
-  #   name: "gcr.io/cloud-builders/go"
-  #   args: ["version"]
-  #   env: ["GOPATH=."]
+  - id: go_version
+    name: "gcr.io/cloud-builders/go"
+    args: ["version"]
+    env: ["GOPATH=."]
 
-  # - id: go_linter
-  #   name: "golangci/golangci-lint"
-  #   args: ["golangci-lint","run"]
+  - id: go_linter
+    name: "golangci/golangci-lint"
+    args: ["golangci-lint","run"]
   
-  # #Excluding G402 so we can run url-test against hosts using private certificates
-  # - id: go_security
-  #   name: "securego/gosec"
-  #   args: ["-exclude=G402", "./..."]
-  #   env: ["PROJECT_ROOT=url-test"]
+  #Excluding G402 so we can run url-test against hosts using private certificates
+  - id: go_security
+    name: "securego/gosec"
+    args: ["-exclude=G402", "./..."]
+    env: ["PROJECT_ROOT=url-test"]
   
-  # - id: go_test
-  #   name: "gcr.io/cloud-builders/go"
-  #   args: ["test","-v"]
-  #   env: ["PROJECT_ROOT=url-test"]
+  - id: go_test
+    name: "gcr.io/cloud-builders/go"
+    args: ["test","-v"]
+    env: ["PROJECT_ROOT=url-test"]
 
   - id: ubuntu
     name: "ubuntu"
