@@ -1,28 +1,54 @@
 steps:
-  # see https://www.npmjs.com/package/editorconfig-checker
-  - id: eclint
-    name: "e53e225/editorconfig-checker"
-  
-  - id: go_version
-    name: "gcr.io/cloud-builders/go"
-    args: ["version"]
-    env: ["GOPATH=."]
+# see https://www.npmjs.com/package/editorconfig-checker
+- id: eclint
+  name: 'e53e225/editorconfig-checker'
 
-  - id: go_linter
-    name: "golangci/golangci-lint"
-    args: ["golangci-lint","run"]
-  
-  #Excluding G402 so we can run url-test against hosts using private certificates
-  - id: go_security
-    name: "securego/gosec"
-    args: ["-exclude=G402", "./..."]
-    env: ["PROJECT_ROOT=url-test"]
-  
-  - id: go_test
-    name: "gcr.io/cloud-builders/go"
-    args: ["test","-v"]
-    env: ["PROJECT_ROOT=url-test"]
+- id: go_version
+  name: 'gcr.io/cloud-builders/go'
+  args: ['version']
+  env: ['GOPATH=.']
+  waitFor: ['-']
 
-  - id: ubuntu
-    name: "ubuntu"
-    args: ["bash", "./test.sh"]
+- id: go_linter
+  name: 'golangci/golangci-lint'
+  args: ['golangci-lint','run']
+  waitFor: ['-']
+
+#Excluding G402 so we can run url-test against hosts using private certificates
+- id: go_security
+  name: 'securego/gosec'
+  args: ['-exclude=G402', './...']
+  env: ['PROJECT_ROOT=url-test']
+  waitFor: ['go_linter']
+
+- id: go_test
+  name: 'gcr.io/cloud-builders/go'
+  args: ['test','-v']
+  env: ['PROJECT_ROOT=url-test']
+  waitFor: ['go_linter']
+
+- id: go_build
+  name: 'gcr.io/cloud-builders/go'
+  args: ['build', '-o', './${REPO_NAME}']
+  env: ['GOPATH=.']
+
+- id: run.sh
+  name: 'ubuntu'
+  args: ['bash', './run.sh', 'ls']
+
+# use git tag if this is the master branch
+- id: docker_build
+  name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: 
+    - '-c'
+    - |
+      if [ $BRANCH_NAME == "master" ]
+       then
+         docker build  -t gcr.io/$PROJECT_ID/${REPO_NAME}:$TAG_NAME .
+       else
+         docker build  -t gcr.io/$PROJECT_ID/${REPO_NAME}:$SHORT_SHA .
+      fi 
+options:
+  env: ['PROJECT_ROOT=url-test']
+  substitution_option: 'ALLOW_LOOSE'
