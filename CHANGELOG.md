@@ -1,3 +1,9 @@
+## [0.6.2] - 2-4-2020
+
+### Removed
+
+- ENV vars from test.sh
+
 ## [0.6.1] - 2-4-2020
 
 ### Added

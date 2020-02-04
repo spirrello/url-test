@@ -1,12 +1,10 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 echo "#################################################"
 
-echo GOPATH: $GOPATH
-echo PWD: $PWD
-echo PROJECT_ROOT: $PROJECT_ROOT
+echo "Files in workspace:"
 
 ls -ltr
 
