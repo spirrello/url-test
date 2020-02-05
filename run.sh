@@ -5,9 +5,11 @@ echo "#################################################"
 case $1 in
 
   env)
-    echo "All ENV vars: "
-    echo "branch: " ${BRANCH_NAME}
-    printenv
+    #echo "All ENV vars: "
+    echo "Branch: " $BRANCH_NAME
+    echo "Git Tag: " $TAG_NAME
+    # echo "All ENV vars: "
+    # printenv
     ;;
 
   ls)
