@@ -34,7 +34,7 @@ steps:
 
 - id: run.sh
   name: 'ubuntu'
-  args: ['bash', './run.sh', 'ls']
+  args: ['bash', './run.sh', 'env']
 
 # use git tag if this is the master branch
 - id: docker_build
@@ -44,11 +44,13 @@ steps:
     - '-c'
     - |
       if [ $BRANCH_NAME == "master" ]
-       then
-         docker build  -t gcr.io/$PROJECT_ID/${REPO_NAME}:$TAG_NAME .
-       else
-         docker build  -t gcr.io/$PROJECT_ID/${REPO_NAME}:$SHORT_SHA .
-      fi 
+      then
+         docker build -t gcr.io/$PROJECT_ID/${REPO_NAME}:latest .
+         docker push gcr.io/$PROJECT_ID/${REPO_NAME}:latest
+      else
+         docker build -t gcr.io/$PROJECT_ID/${REPO_NAME}:$SHORT_SHA .
+         docker push gcr.io/$PROJECT_ID/${REPO_NAME}:$SHORT_SHA
+      fi
 options:
   env: ['PROJECT_ROOT=url-test']
   substitution_option: 'ALLOW_LOOSE'
