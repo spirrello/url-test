@@ -5,11 +5,8 @@ echo "#################################################"
 case $1 in
 
   env)
-    #echo "All ENV vars: "
-    echo "Branch: " $BRANCH_NAME
-    echo "Git Tag: " $TAG_NAME
-    # echo "All ENV vars: "
-    # printenv
+    echo "All ENV vars: "
+    printenv
     ;;
 
   ls)
@@ -18,8 +15,7 @@ case $1 in
     ;;
 
   *)
-    echo "Unknown Argument!"
-    exit 1
+    echo "No valid args provided"
     ;;
 esac
 
