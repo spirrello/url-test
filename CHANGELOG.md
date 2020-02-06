@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2-6-2020
+### Added
+- condition for tagging containers with latest, commit hash and git tag
+
+### Changed
+- run.sh to list directory files only
+
 ## [0.6.3] - 2-5-2020
 ### Added
 - Case switch in bash script
