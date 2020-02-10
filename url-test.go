@@ -43,7 +43,7 @@ func main() {
 
 	inputValidation(url, requestCount, output, requestType, postFile)
 
-	fmt.Println("Testing with:", url)
+	fmt.Println("testing with :", url)
 
 	ch := make(chan string)
 
