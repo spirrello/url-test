@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -43,7 +44,8 @@ func main() {
 
 	inputValidation(url, requestCount, output, requestType, postFile)
 
-	fmt.Println("testing with :", url)
+	timeStamp := getTimeStamp()
+	fmt.Println(`{"level": "INFO", "timeStamp": "` + timeStamp + `", "messageType": "url", "url": "` + url + `"}`)
 
 	ch := make(chan string)
 
@@ -71,15 +73,22 @@ func main() {
 
 		// Loop through the results
 		for i := 0; i < requestCount; i++ {
-			log.Println(<-ch)
+			fmt.Printf("%v\n", <-ch)
 		}
 		//Sleep for a duration between iterations
 		if sleepTime > 0 {
-			log.Println("Sleeping....")
+			timeStamp := getTimeStamp()
+			log.Println("\r" + `{"level": "INFO", "timeStamp": "` + timeStamp + `", messageType": "sleep", "duration": "` + strconv.Itoa(sleepTime) + `"}`)
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 		}
 	}
 
+}
+
+//getTimeStamp returns a usable time stamp
+func getTimeStamp() string {
+	t := time.Now()
+	return t.Format("2006-01-02 15:04:05.999")
 }
 
 //getFilePath fetches the absolute path to a file
@@ -101,7 +110,8 @@ func setupCloseHandler() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		log.Println("\rclosing down")
+		timeStamp := getTimeStamp()
+		log.Println("\r" + `{"level": "INFO", "timeStamp": "` + timeStamp + `", messageType": "exit"}`)
 		os.Exit(0)
 	}()
 }
@@ -118,6 +128,8 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 	start := time.Now()
 	/* #nosec G107 */
 	resp, err := http.Get(url)
+	//get time stamp of when work completed
+	timeStamp := getTimeStamp()
 
 	secs := time.Since(start).Seconds()
 
@@ -133,7 +145,11 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 		if strings.Compare(httpBodyStr, "true") == 0 {
 			ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s, http output: %s", iteration, secs, resp.Status, bodyString)
 		} else {
-			ch <- fmt.Sprintf("test: %d, time spent: %.2f seconds, result: %s", iteration, secs, resp.Status)
+			//convert secs to type string and then prep result in json format
+			secsStr := fmt.Sprintf("%f", secs)
+			result := `{"level": "INFO", "timeStamp": "` + timeStamp + `", "messageType": "test", "test": "` + strconv.Itoa(iteration) +
+				`", "totalTime": "` + secsStr + `", "statusCode": "` + resp.Status + `"}`
+			ch <- result
 		}
 
 	}
