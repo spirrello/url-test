@@ -3,6 +3,8 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -14,14 +16,20 @@ func TestHttpGetRequest(t *testing.T) {
 
 	//flag for ignoring ssl warnings
 	insecure := "true"
-	go httpGetRequest("https://yahoo.com", ch, 1, "false", insecure)
-
-	//for i := 0; i < 1; i++ {
-	result := <-ch
-	if !strings.Contains(result, "200 OK") {
-		t.Errorf("httpGetRequest TEST FAILED")
+	//run 10 tests by default
+	i, _ := strconv.Atoi(GetEnv("TEST_COUNT", "10"))
+	for x := 0; x < i; x++ {
+		testURL := GetEnv("TEST_URL", "https://yahoo.com")
+		go httpGetRequest(testURL, ch, x, "false", insecure)
 	}
+	for x := 0; x < i; x++ {
+		result := <-ch
+		if !strings.Contains(result, "200 OK") {
+			t.Errorf("httpGetRequest TEST FAILED")
+		} else {
+			fmt.Printf("%v\n", result)
+		}
 
-	//}
+	}
 
 }
