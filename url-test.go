@@ -85,6 +85,15 @@ func main() {
 
 }
 
+//GetEnv is a helper function for gathering env variables
+func GetEnv(key, fallback string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		value = fallback
+	}
+	return value
+}
+
 //getTimeStamp returns a usable time stamp
 func getTimeStamp() string {
 	t := time.Now()
@@ -116,7 +125,7 @@ func setupCloseHandler() {
 	}()
 }
 
-//httpTest sends get requestCount to an endpoint.
+//httpGetRequest sends get requestCount to an endpoint.
 func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string, insecure string) {
 
 	//if insecure flag is true skip ssl verification
@@ -126,8 +135,14 @@ func httpGetRequest(url string, ch chan<- string, iteration int, httpBody string
 
 	//Clock the start and finish of each request
 	start := time.Now()
+
+	//default timeout of 5 seconds
+	defaultTimeout, _ := strconv.Atoi(GetEnv("DEFAULT_TIMEOUT", "5"))
+	var netClient = &http.Client{
+		Timeout: time.Second * time.Duration(defaultTimeout),
+	}
 	/* #nosec G107 */
-	resp, err := http.Get(url)
+	resp, err := netClient.Get(url)
 	//get time stamp of when work completed
 	timeStamp := getTimeStamp()
 
